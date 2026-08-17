@@ -1,0 +1,60 @@
+name: Feishu Push Bot
+
+on:
+  schedule:
+    # 北京时间 = UTC + 8
+    - cron: '0 0 * * *'   # 北京时间 08:00 早推天气
+    - cron: '40 9 * * *'  # 北京时间 17:40 充电提醒
+    - cron: '55 10 * * *' # 北京时间 18:55 下班天气
+    - cron: '0 15 * * *'  # 北京时间 23:00 晚推天气
+  workflow_dispatch:
+    inputs:
+      push_type:
+        description: '推送类型'
+        required: true
+        default: 'morning'
+        type: choice
+        options:
+          - morning
+          - charging
+          - evening
+          - night
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Determine push type
+        id: type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ inputs.push_type }}" >> $GITHUB_OUTPUT
+          else
+            case "${{ github.event.schedule }}" in
+              "0 0 * * *")   echo "type=morning" >> $GITHUB_OUTPUT ;;
+              "40 9 * * *")  echo "type=charging" >> $GITHUB_OUTPUT ;;
+              "55 10 * * *") echo "type=evening" >> $GITHUB_OUTPUT ;;
+              "0 15 * * *")  echo "type=night" >> $GITHUB_OUTPUT ;;
+              *) echo "type=morning" >> $GITHUB_OUTPUT ;;
+            esac
+          fi
+          echo "推送类型: ${{ steps.type.outputs.type }}"
+
+      - name: Push to Feishu
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        run: python push.py ${{ steps.type.outputs.type }}
