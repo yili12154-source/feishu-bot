@@ -1,0 +1,8 @@
+{
+  "name": "feishu-weather-bot",
+  "version": "1.0.0",
+  "description": "飞书天气机器人 - 定时推送 + 交互式查询",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
