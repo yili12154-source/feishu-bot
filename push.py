@@ -32,6 +32,31 @@ WEATHER_CODE_MAP = {
     95: "雷暴", 96: "雷暴伴小冰雹", 99: "雷暴伴大冰雹",
 }
 
+# 博雅城市广场附近打工人午饭美食库
+FOOD_LIST = [
+    # 快餐简餐类
+    {"name": "食味家餐厅", "type": "快餐简餐", "price": "15-25元", "distance": "楼下40米", "desc": "写字楼楼下的便民快餐，菜品丰富，出餐快，适合赶时间的工作日", "tag": "极速出餐"},
+    {"name": "二马当家", "type": "自选快餐", "price": "15-30元", "distance": "天府三街", "desc": "40多种菜品现炒现卖，红烧肉/粉蒸肉/冒烤鸭任选，米饭南瓜汤免费续", "tag": "性价比之王"},
+    {"name": "八万面米线", "type": "面食米线", "price": "12-20元", "distance": "天华路187号", "desc": "上菜极快，人均17元，味道正宗，适合一个人快速解决午饭", "tag": "一人食首选"},
+    {"name": "李与白包子铺", "type": "包子快餐", "price": "10-18元", "distance": "新裕路459号", "desc": "现包现蒸的包子铺，搭配粥和小菜，清淡不油腻", "tag": "清淡养胃"},
+    {"name": "银泰城负一楼食集", "type": "美食广场", "price": "20-40元", "distance": "天府三街银泰城", "desc": "老成都杂酱面、云南过桥米线等多家档口，15分钟吃饱吃好", "tag": "选择困难救星"},
+    # 川菜江湖菜类
+    {"name": "舌尖上的鸭脑壳", "type": "江湖川菜", "price": "35-50元", "distance": "天顺路", "desc": "18年老店，人均40吃到扶墙出，荤素搭配巨下饭，饭点全是附近上班族", "tag": "同事聚餐"},
+    {"name": "范十钢江湖菜", "type": "江湖菜", "price": "30-45元", "distance": "天府三街附近", "desc": "锅气十足的苍蝇馆子，哑巴兔和辣子鸡任选，人均30多吃到爽", "tag": "重口味最爱"},
+    {"name": "望龙门江湖菜", "type": "江湖菜", "price": "35-55元", "distance": "广都店", "desc": "地道成都江湖菜，分量扎实，适合三五同事拼桌AA", "tag": "下饭神器"},
+    {"name": "百年神厨", "type": "地道川菜", "price": "40-60元", "distance": "广都店", "desc": "经典川菜连锁，口味稳定，环境比苍蝇馆子好，适合接待客户", "tag": "品质之选"},
+    {"name": "蓉和妈妈菜", "type": "家常川菜", "price": "50-70元", "distance": "梓州大道4507号", "desc": "家常川菜，锅边馍和小米排骨是招牌，适合想吃点好的日子", "tag": "改善伙食"},
+    {"name": "锦城小厨", "type": "川菜套餐", "price": "20-30元/人", "distance": "天府三街", "desc": "98元六菜一汤够4-5人，人均20多，同事拼餐超划算", "tag": "拼餐首选"},
+    # 特色风味类
+    {"name": "冯四孃跷脚牛肉", "type": "乐山风味", "price": "30-45元", "distance": "博雅城店155米", "desc": "乐山非遗跷脚牛肉，汤鲜肉嫩，搭配蘸碟绝了，清淡又好吃", "tag": "不辣也香"},
+    {"name": "蛙兔鸡自贡风味", "type": "自贡江湖菜", "price": "35-50元", "distance": "广都店53米", "desc": "自贡特色鲜锅兔/跳水蛙，麻辣鲜香，爱吃辣的必冲", "tag": "辣得过瘾"},
+    {"name": "蹦蹦哒鲜锅兔", "type": "自贡爆炒", "price": "35-55元", "distance": "附近", "desc": "鲜锅兔和跳水蛙双招牌，兔肉嫩滑，配菜丰富，重口味星人最爱", "tag": "兔肉专门店"},
+    {"name": "黔贵仁豆米火锅", "type": "贵州火锅", "price": "25-40元", "distance": "博雅城市广场内", "desc": "新开业的贵州豆米火锅，49.9双人餐半自助，豆米汤底浓郁", "tag": "新店优惠"},
+    {"name": "荷坛鱼烤鱼江湖菜", "type": "烤鱼江湖菜", "price": "30-45元", "distance": "博雅城市广场楼下", "desc": "现点现做烤鱼，128元3-4人餐含烤鱼+烧菜+江湖菜+凉菜", "tag": "烤鱼爱好者"},
+    {"name": "夜鸡杂", "type": "鸡杂专门店", "price": "30-45元", "distance": "天目中心店", "desc": "酸辣鸡杂下饭神器，分量足，配米饭能吃三碗", "tag": "酸辣开胃"},
+    {"name": "公馆菜·老四川公馆菜", "type": "川菜公馆菜", "price": "45-70元", "distance": "277米", "desc": "老四川公馆菜风格，菜品精致，适合稍微正式的午餐", "tag": "环境好"},
+]
+
 
 def get_webhook():
     import os
@@ -290,9 +315,62 @@ def push_night():
     post_feishu(card)
 
 
+def push_food():
+    """午饭推荐：博雅城市广场附近美食"""
+    import random
+    today = datetime.now().strftime("%Y-%m-%d")
+    weekday = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][datetime.now().weekday()]
+    work, reason = is_workday(today)
+    if not work:
+        print(f"今天({today} {weekday})是{reason}，跳过美食推送")
+        return
+
+    # 按类型分组，确保推荐多样性
+    by_type = {}
+    for food in FOOD_LIST:
+        t = food["type"]
+        if t not in by_type:
+            by_type[t] = []
+        by_type[t].append(food)
+
+    # 从不同类型中各选1家，共选4家
+    selected = []
+    type_keys = list(by_type.keys())
+    random.shuffle(type_keys)
+    for t in type_keys[:4]:
+        food = random.choice(by_type[t])
+        selected.append(food)
+
+    # 如果不足4家，从剩余中补充
+    if len(selected) < 4:
+        remaining = [f for f in FOOD_LIST if f not in selected]
+        random.shuffle(remaining)
+        selected.extend(remaining[:4 - len(selected)])
+
+    title = f"🍱 今日午饭推荐（{today[5:]} {weekday}）"
+    lines = [
+        f"<at user_id=\"all\">所有人</at> 打工人午饭吃什么？博雅城市广场附近精选推荐：",
+        "",
+    ]
+
+    emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"]
+    for i, food in enumerate(selected):
+        lines.append(f"{emojis[i]} **{food['name']}**  `{food['tag']}`")
+        lines.append(f"   类型：{food['type']} | 人均：{food['price']} | 距离：{food['distance']}")
+        lines.append(f"   {food['desc']}")
+        lines.append("")
+
+    lines.append("---")
+    lines.append("💡 **小贴士**：12点前到店可避开高峰，多人拼餐更划算！")
+    lines.append("📍 地点：成都市博雅城市广场A座周边")
+
+    card = build_card(title, lines, color="orange", note="到点啦 · 工作日午饭推荐 · 成都美食打卡")
+    post_feishu(card)
+
+
 def main():
     if len(sys.argv) < 2:
-        print("用法: python push.py <morning|charging|evening|night>")
+        print("用法: python push.py <morning|charging|evening|night|food>")
         sys.exit(1)
 
     push_type = sys.argv[1].lower()
@@ -307,6 +385,8 @@ def main():
         push_evening()
     elif push_type == "night":
         push_night()
+    elif push_type == "food":
+        push_food()
     else:
         print(f"未知类型: {push_type}")
         sys.exit(1)
